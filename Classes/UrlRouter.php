@@ -4,8 +4,7 @@ namespace App\Classes;
 
 class UrlRouter
 {
-    public array $requestRoutes = [];
-
+    public array $requestRoutes = array();
     public ?Database $database = null;
 
     public function __construct(Database $database)
@@ -24,22 +23,20 @@ class UrlRouter
         $this->requestRoutes[$url] = $funct;
     }
 
-
-
     // Parses the url and calls the function associated with that particular pattern.
     public function resolve()
     {
         $url = $_SERVER['PATH_INFO'] ?? '/';
 
-        $func = $this->requestRoutes[$url] ?? null;
+        $funct = $this->requestRoutes[$url] ?? null;
 
 
-        if (!$func) {
+        if (!$funct) {
             $this->renderView("page_not_found");
             exit;
         }
 
-        echo call_user_func($func, $this);
+        echo call_user_func($funct, $this);
     }
 
     /*
@@ -59,4 +56,10 @@ class UrlRouter
         $content = ob_get_clean();
         include "./Views/_layout.php";
     }
+
+    public function accessDenied()
+    {
+        $this->renderView("access_denied");
+    }
+
 }

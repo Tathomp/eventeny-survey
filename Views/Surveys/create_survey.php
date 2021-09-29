@@ -1,5 +1,4 @@
-<form id="updateForm" action="/events/survey/update" enctype="multipart/form-data" method="POST"></form>
-
+<button class="button" type="button" onclick="generatePreview()">Preview Test</button>
 <div class="survey-content-holder">
     <div class="row">
         <div class="column">
@@ -23,18 +22,27 @@
                     <br><br>
 
                     <div>
-                        <input type="color" id="primary" name="primary" value="#ffffff">
+                        <input type="color" id="primary" name="primary" value="">
                         <label for="head">Primary Color</label>
+                    </div>
+
+                    <br><br>
+                    <div>
+                        <label>Coupon Message</label>
+                        <textarea name="message" value="" rows="4" cols="50"><?php echo $couponModel->getMessage(); ?></textarea>
+                    </div>
+                    <div>
+                        <label>Promo Code</label>
+                        <input name="code" type="text" maxlength="12" size="14" value="<?php echo $couponModel->getCode(); ?>">
                     </div>
 
                     <br><br>
 
                     <button  class="button" type="button" onclick="generateDropDown()">New Question</button>
+
                     <button class="button" type="submit" name="create">Submit Survey</button>
-
-                    <button class="button" type="submit" form="updateForm" name="survey-id" value="<?php echo $surveyModel->id; ?>">Update Survey Form</button>
-
-                    <br><br>
+                    <button class="button" type="submit" name="update" value="<?php echo $surveyModel->id; ?>">Update Survey Form</button>
+                    <br>
                 </div>
                 <div id="question-container"></div>
 

@@ -1,8 +1,20 @@
 <div class="content-holder">
     <h1 class="content-header">Event Surveys</h1>
-    <a href="/events/survey/create">
-        <button class="button">Create New Survey</button>
-    </a>
+    <div class="subheader">
+        Manage your suveys here
+    </div>
+    <ul>
+        <li>Create New Surveys</li>
+        <li>Update Old Surveys</li>
+        <li>Delete Unused Sureys</li>
+        <li>Track Survey Responses</li>
+    </ul>
+    <div class="">
+        <a href="/events/survey/create">
+            <button class="button">Create New Survey</button>
+        </a>
+    </div>
+
 
     <table class="table content-body">
         <thead>

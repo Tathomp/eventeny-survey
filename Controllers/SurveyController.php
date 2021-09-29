@@ -15,12 +15,34 @@ use function App\utils\generateUUID;
 
 include_once( __DIR__ . '/../utils/guid.php');
 
-// https://www.myprograming.com/php-mvc-step-by-step-live-project-example/#Follow_Few_Steps
 class SurveyController
 {
     public function __construct()
     {
         
+    }
+
+    // List all surveys for a given event
+    public function index(UrlRouter $urlRouter)
+    {
+
+        if( isset($_POST['event_id']))
+        {
+            $eventId = $_POST['event_id'];
+            $_SESSION["curr_event"] = $eventId;
+        }
+        else
+        {
+            //through out page not found type page
+            $urlRouter->accessDenied();
+            return;
+        }
+
+        $surveys = $urlRouter->database->getSurveys($eventId);
+
+        $urlRouter->renderView('Surveys/index', [
+            'surveys' => $surveys
+        ]);
     }
 
     public function saveSurvey(UrlRouter $urlRouter)
@@ -29,14 +51,19 @@ class SurveyController
         {
             $eventId = null;
 
-            if(isset($_POST['primary']))
+            if(isset($_POST['primary'])) // i think this check is redudant
             {
                 // We're using this to save data
                 $eventId = $_SESSION["curr_event"];
                 // we need to write the db call to insert the question
 
+                $coupon = new CouponCode();
+                $coupon->loadData($_POST);
+                $codeId = $coupon->save(); //We need to grab the new id to pass to the survey
+                echo "code id: ". $codeId;
                 $survey = new Survey();
                 $survey->loadData($_POST);
+                $survey->setCouponId($codeId);
                 $survey->save();
 
 
@@ -49,79 +76,62 @@ class SurveyController
                 'surveys' => $surveys
             ]);
         }
-        else
+        elseif (isset($_POST['update']))
         {
-            include __DIR__."/access_denied.php";
-            return;
-        }
+            $survey = new Survey();
+            $survey->loadData($_POST);
+            $survey->update();
 
-
-    }
-
-
-    public function index(UrlRouter $urlRouter)
-    {
-
-        if( isset($_POST['event_id']))
-        {
-            $eventId = $_POST['event_id'];
-            $_SESSION["curr_event"] = $eventId;
+            $coupon = new CouponCode();
+            $coupon->loadData($_POST);
+            $coupon->update($_POST['update']);
         }
         else
         {
-            //through out page not found type page
-            include __DIR__."/access_denied.php";
-            return;
+            $urlRouter->accessDenied();
         }
-
-        $surveys = $urlRouter->database->getSurveys($eventId);
-    
-        $urlRouter->renderView('Surveys/index', [
-            'surveys' => $surveys
-        ]);
-
-
     }
-    public function updateSurvey(UrlRouter $urlRouter)
+
+
+    public function updateSurveyView(UrlRouter $urlRouter)
     {
         if(isset($_POST["survey-id"]))
         {
             $surveyData = $urlRouter->database->getQuestionsForSurvey($_POST['survey-id']);
+            $couponData = $urlRouter->database->getCuoponCode($_POST['survey-id']);
 
             $surveyModel = new Survey();
             $surveyModel->loadDataFromDB($surveyData);
             $surveyModel->id = $_POST['survey-id'];
 
+            $couponModel = new CouponCode();
+            $couponModel->setCode($couponData[0]['code']);
+            $couponModel->setMessage($couponData[0]['message']);
+
         }
         else
         {
             $surveyModel = new Survey();
+            $couponModel = new CouponCode();
         }
 
 
         $urlRouter->renderView('Surveys/create_survey', [
-            "surveyModel" => $surveyModel
+            "surveyModel" => $surveyModel,
+            "couponModel" => $couponModel
         ]);
     }
 
 
     public function createSurvey(UrlRouter $urlRouter)
     {
-        if(isset($_POST["surveyId"]))
-        {
-            $surveyData = $urlRouter->database->getQuestionsForSurvey($_POST['surveyId']);
-            $surveyModel = new Survey();
-            $surveyModel->loadDataFromDB($surveyData);
-            $surveyModel->id = $_POST['surveyId'];
-        }
-        else
-        {
-            $surveyModel = new Survey();
-        }
 
+        $surveyModel = new Survey();
+        $couponModel = new CouponCode();
 
         $urlRouter->renderView('Surveys/create_survey', [
-            "surveyModel" => $surveyModel
+            "surveyModel" => $surveyModel,
+            "couponModel" => $couponModel
         ]);
     }
 
@@ -162,6 +172,7 @@ class SurveyController
 
 
         $data = $urlRouter->database->getCuoponCode($_SESSION['curr_survey'])[0];
+
         $surveyData  = new CouponCode();
         $surveyData ->loadData($data);
 

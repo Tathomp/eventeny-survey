@@ -10,8 +10,8 @@ class Survey
     public ?int $id = null;
     public ?string $surveyName = "";
     public ?string $surveyCategory = null;
-    public ?string $primaryColor = null;
-    public ?string $couponCode = null;
+    public ?string $primaryColor = "#08a09c";
+    public ?int $couponCode = null;
 
     public array $question = array();
 
@@ -23,6 +23,7 @@ class Survey
     {
         $this->surveyName = $queryData[0]['name'];
         $this->surveyCategory = $queryData[0]['survey_category'];
+        $this->primaryColor = $queryData[0]['primary_color'];
 
         foreach ($queryData as $data)
         {
@@ -61,8 +62,17 @@ class Survey
         $this->surveyCategory = $data['survey-category'];
         $this->primaryColor = $data['primary'];
 
-        foreach($data['question'] as $question)
+        if(isset($data['update']))
         {
+            $this->id = $data['update'];
+        }
+
+
+
+        foreach(array_keys($data['question']) as $id)
+        {
+            $question = $data['question'][$id];
+
             if(isset($question['option']))
             {
                 // Question has options
@@ -74,6 +84,7 @@ class Survey
                 $q = new Question();
                 $q->loadData($question);
             }
+            $q->setId($id);
 
             $this->question[] = $q;
 
@@ -99,8 +110,24 @@ class Survey
 
         foreach($this->question as $q)
         {
-            $q->update($surv_id);
+            $q->update();
         }
     }
+
+    public function setCouponId($id)
+    {
+        $this->couponCode = $id;
+    }
+
+    public function getCouponId()
+    {
+        return $this->couponCode;
+    }
+
+    public function getColor():?string
+    {
+        return strtolower($this->primaryColor);
+    }
+
 
 }

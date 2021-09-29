@@ -1,14 +1,18 @@
 const form = document.getElementById("question-container");
 let currentQuestionNumber = 0;
+let useID = false;
+let currentId = 0;
+
 let optionsCountMap = new Map();
 
 
 function generateDropDown()
 {
     let paramString = '{ "id" : "", ' +
-                        '"options" : [{"choice": ""}], ' +
+                        '"options" : [{"choice": "", "id":""}], ' +
     '                   "question_prompt": "", ' +
-        '               "category_name": "Drop Down"  }';
+        '               "category_name": "Drop Down",' +
+                        '"required": ' + true +'  }';
     let paramObj = JSON.parse(paramString);
     createQuestionBlock(paramObj);
 }
@@ -16,9 +20,10 @@ function generateDropDown()
 function generateRadio()
 {
     let paramString = '{ "id" : "", ' +
-                        '"options" : [{"choice": ""}],' +
+                        '"options" : [{"choice": "", "id":""}],' +
                         '"question_prompt": "", ' +
-        '               "category_name": "Radio"  }';
+        '               "category_name": "Radio",' +
+                        '"required": ' + true +'  }';
     let paramObj = JSON.parse(paramString);
     createQuestionBlock(paramObj);
 }
@@ -26,9 +31,10 @@ function generateRadio()
 function generateCheckBox()
 {
     let paramString = '{ "id" : "",' +
-                        '"options" : [{"choice": ""}], ' +
+                        '"options" : [{"choice": "", "id":""}], ' +
                         '"question_prompt": "", ' +
-                        '"category_name": "Checkbox"  }';
+                        '"category_name": "Checkbox",' +
+                        '"required": ' + true +'  }';
     let paramObj = JSON.parse(paramString);
     createQuestionBlock(paramObj);
 }
@@ -36,7 +42,8 @@ function generateStarRating()
 {
     let paramString = '{ "id" : "",' +
                         '"question_prompt": "", ' +
-                        '"category_name": "Star Rating"  }';
+                        '"category_name": "Star Rating",' +
+                        '"required": ' + true + ' }';
     let paramObj = JSON.parse(paramString);
     createQuestionBlock(paramObj);
 }
@@ -44,7 +51,8 @@ function generateParagraph()
 {
     let paramString = '{ "id" : "", ' +
                         '"question_prompt": "", ' +
-                        '"category_name": "Paragraph"  }';
+                        '"category_name": "Paragraph",' +
+        '               "required": ' + true + ' }';
     let paramObj = JSON.parse(paramString);
     createQuestionBlock(paramObj);
 }
@@ -52,7 +60,8 @@ function generateShortAnswer()
 {
     let paramString = '{ "id" : "",' +
                         '"question_prompt": "", ' +
-                        '"category_name": "Short Answer"  }';
+                        '"category_name": "Short Answer",' +
+                            '"required": ' + true + ' }';
     let paramObj = JSON.parse(paramString);
     createQuestionBlock(paramObj);
 }
@@ -91,13 +100,28 @@ function selectForm(control, questId)
 function createQuestionBlock(qustionArray)
 {
     let questionItem = document.createElement("div");
-    let questId = qustionArray["id"];
-    questionItem.setAttribute('id', questId);
     questionItem.className = 'survey-content-holder';
 
-    let questionIdContainer = generateHiddenField();
-    questionIdContainer.setAttribute("name", getQuestionNamePrefix() +"[id][" + questId +"]");
-    questionItem.appendChild(questionIdContainer);
+    if (qustionArray["id"] != "")
+    {
+        useID = true;
+        currentId = qustionArray["id"];
+
+        let questionIdContainer = generateHiddenField();
+        questionIdContainer.setAttribute("name", getQuestionNamePrefix() +"[id][" +  qustionArray["id"] +"]");
+        questionItem.appendChild(questionIdContainer);
+        questionItem.setAttribute('id', currentId);
+
+    }
+    else
+    {
+        currentQuestionNumber++;
+        questionItem.setAttribute('id', currentQuestionNumber);
+
+    }
+
+
+
 
     questionItem.appendChild(generateLabel("Question Type: "));
 
@@ -170,6 +194,38 @@ function createQuestionBlock(qustionArray)
 
     questionItem.appendChild(document.createElement("br"));
 
+    // Required Toggle
+    // We'll need to give it an apporiate name and parse for it
+    let labelPrompt = generateLabel("Required Question?");
+    questionItem.appendChild(labelPrompt);
+
+    questionItem.appendChild(document.createElement("br"));
+
+    let yesOption = generateLabel("Yes ")
+    let noOption = generateLabel(" No")
+    yesOption.setAttribute("class", "slider-label");
+    noOption.setAttribute("class", "slider-label");
+
+    questionItem.appendChild(noOption);
+
+    let switchLabel = generateLabel("")
+    let checkBox = document.createElement("input");
+    checkBox.setAttribute("type", "checkbox");
+    checkBox.setAttribute("name", getQuestionNamePrefix() + "[required]");
+    console.log(qustionArray)
+    checkBox.checked = qustionArray['required'];
+    let span = document.createElement("span");
+    span.setAttribute("class", "slider round");
+    switchLabel.setAttribute("class", "switch")
+    switchLabel.appendChild(checkBox);
+    switchLabel.appendChild(span);
+    questionItem.appendChild(switchLabel);
+
+    questionItem.appendChild(yesOption);
+
+
+    questionItem.appendChild(document.createElement("br"));
+
     //label element for drop-down menu
     questionItem.appendChild(generateLabel("Question: "));
 
@@ -201,8 +257,9 @@ function createQuestionBlock(qustionArray)
 
 function generateNewOption(targetQuestionItem, optionArray)
 {
-
-    if("id" in optionArray)
+    console.log("Options Array");
+    console.log(optionArray);
+    if(optionArray["id"] == "")
     {
         optionsCountMap.set(targetQuestionItem, optionsCountMap.get(targetQuestionItem)+1);
         optionArray["id"]=optionsCountMap.get(targetQuestionItem);
@@ -259,7 +316,16 @@ function initOptionQuestion(selectedOption)
 function getQuestionNamePrefix()
 {
     // https://www.php.net/manual/en/reserved.variables.post.php
-    return "question[" +currentQuestionNumber + "]";
+    if(useID)
+    {
+        return "question[" +currentId + "]";
+
+    }
+    else
+    {
+        return "question[" +currentQuestionNumber + "]";
+
+    }
 }
 
 function generateLabel(labelValue)
@@ -304,6 +370,8 @@ function generateHiddenField()
 
 function populateForm()
 {
+    // we couldn't echo this in with php
+    document.getElementById("primary").value = jsonData["primaryColor"];
     jsonData['question'].forEach(question => {
         createQuestionBlock(question);
     })

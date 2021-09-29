@@ -59,6 +59,7 @@ class MetricsController
 
                 if($r["category_name"] == "Checkbox" ||
                     $r["category_name"] == "Drop Down" ||
+                    $r["category_name"] == "Star Rating" ||
                     $r["category_name"] == "Radio")
                 {
 
@@ -86,9 +87,10 @@ class MetricsController
                         $metrics[$r["question_id"]]["choices"][$r["choice"]] = 1;
                     }
                 }
-                else if($r["category_name"] == "Star Rating")
+
+                if($r["category_name"] == "Star Rating")
                 {
-                    if(isset($metrics[$r["question_id"]]))
+                    if(isset($metrics[$r["question_id"]]["sum"]))
                     {
                         $metrics[$r["question_id"]]["sum"] +=  intval($r["choice"]);
                         $metrics[$r["question_id"]]["count"]++;
@@ -100,6 +102,7 @@ class MetricsController
                         $metrics[$r["question_id"]]["category_name"] = $r["category_name"];
                         $metrics[$r["question_id"]]["sum"] =  intval($r["choice"]);
                         $metrics[$r["question_id"]]["count"] = intval(1);
+
                     }
 
 
@@ -107,6 +110,7 @@ class MetricsController
 
 
             }
+
             // point to metrics page
             $urlRouter->renderView('Metrics/survey_metrics', [
                 'metrics' => $metrics,

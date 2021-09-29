@@ -1,5 +1,7 @@
-<div class="panel-content content-holder">
-    <h1 class="content-header"><?php echo $survey['name'] ?></h1>
+<div class="content-holder" style="border: 3px solid    <?php echo $survey['primary_color'] ?>">
+    <h1 class="content-header" style="background: <?php echo $survey['primary_color'] ?>">
+        <?php echo $survey['name'] ?>
+    </h1>
     <div class="content-body">
         <div>
             Total Responses: <?php echo $metrics['count'] ?>
@@ -15,7 +17,9 @@
                     echo "<div class='left-col'>". $choice ."</div>";
                     echo "<div class='middle-bar'><div class='bar-container'><div class='bar' style='width:".
                         strval( ($metric["choices"][$choice] / $metrics['count']) * 100)
-                        ."%;'></div> </div></div>";
+                        ."%;
+                        background-color: ". $survey["primary_color"] .";
+                        '></div> </div></div>";
                     echo "<div class='right-col'>" . $metric["choices"][$choice] . "</div>";
                     echo "</div>";
                 }
@@ -25,12 +29,11 @@
                 echo "<h3>". $metric["prompt"] . "</h3>";
             }
         }?>
-
+        <br>
         <form action="/events/survey/metrics/download" method="post" target="_blank">
             <button type="submit" name="survey-id" class="button" value="<?php echo $survey['id'] ?>">
                 Download Data
             </button>
-
         </form>
     </div>
 

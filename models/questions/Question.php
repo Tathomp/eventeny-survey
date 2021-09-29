@@ -8,6 +8,7 @@ class Question
     public ?string $question_prompt = null;
     public ?string $category_name = null;
     public ?string $survey_id = null;
+    public ?bool $required = null;
 
 
     public function __construct()
@@ -21,12 +22,23 @@ class Question
 
     public function loadData($data)
     {
+
         if(isset($data['question_id']))
         {
             $this->id = $data['question_id'];
         }
         $this->question_prompt = $data['prompt'];
         $this->category_name = $data['category'];
+
+        if(isset($data['required']))
+        {
+            $this->required = filter_var($data['required'], FILTER_VALIDATE_BOOLEAN);
+        }
+        else
+        {
+            $this->required = false;
+        }
+
     }
 
     public function save($survey_id)
@@ -37,9 +49,16 @@ class Question
 
     }
 
-    public function update($survey_id)
+    public function update()
     {
-
+        $db = Database::$db;
+        $db->updateQuestion($this);
     }
+
+    public function getRequired()
+    {
+        return $this->required;
+    }
+
 
 }

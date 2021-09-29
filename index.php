@@ -35,7 +35,8 @@ $router->addRequest('/events/survey/take', [$surveyController, 'displaySurvey'])
 $router->addRequest('/events/survey/complete', [$surveyController, 'completeSurvey']);
 $router->addRequest('/events/survey/delete', [$surveyController, 'deleteSurvey']);
 $router->addRequest('/events/survey/create', [$surveyController, 'createSurvey']);
-$router->addRequest('/events/survey/update', [$surveyController, 'updateSurvey']);
+$router->addRequest('/events/survey/update', [$surveyController, 'updateSurveyView']);
+//$router->addRequest('/events/survey/sendUpdate', [$surveyController, 'updateSurvey']);
 
 $router->addRequest('/events/survey/metrics', [$metricsController, 'surveyMetrics']);
 $router->addRequest('/events/survey/metrics/download', [$metricsController, 'downLoadMetrics']);

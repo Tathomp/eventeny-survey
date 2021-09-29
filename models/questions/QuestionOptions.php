@@ -11,13 +11,14 @@ class QuestionOptions extends Question
     public function loadData($data)
     {
         parent::loadData($data);
-
         if(isset($data['option'])) //this check might be redunat, it's only being chcecked when it's already be verified to have otptions
         {
-            foreach($data['option'] as $choice)
+            foreach(array_keys($data['option']) as $key)
             {
+
                 $option = new Option();
-                $option->choice = $choice;
+                $option->setId($key);
+                $option->choice = $data['option'][$key];
                 $this->options[] = $option;
             }
         }
@@ -50,5 +51,18 @@ class QuestionOptions extends Question
 
         }
     }
+
+    public function update()
+    {
+        $db = Database::$db;
+        parent::update();
+        foreach($this->options as $option)
+        {
+//           $db->createOption($option, $this->id);
+            $option->update($this);
+
+        }
+    }
+
 }
 

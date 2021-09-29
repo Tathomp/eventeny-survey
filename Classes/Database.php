@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\Survey;
 use PDO;
 use PDOException;
 
@@ -16,6 +17,7 @@ class Database
         {
             // Should this be in some kind of enviromental variable?
             $this->pdo = new PDO('mysql:host=localhost;port=3306;dbname=survey_db', 'root', '');
+            $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$db = $this;
         }
@@ -75,7 +77,7 @@ class Database
         }
     }
 
-    public  function getSurvey  ($surveyId)
+    public  function getSurvey($surveyId)
     {
         try
         {
@@ -112,8 +114,8 @@ class Database
         try
         {
             $statement = $this->pdo->prepare('
-                SELECT survey.name, survey_category.name as survey_category, questions.id as question_id, questions.prompt, 
-                question_category.category_name as category, options.id as options_id, options.choice
+                SELECT survey.name, survey_category.name as survey_category, survey.primary_color as primary_color, questions.id as question_id, questions.prompt, 
+                question_category.category_name as category, questions.required as required, options.id as options_id, options.choice
                 FROM survey 
                 LEFT JOIN questions ON survey.id = questions.survey_id 
                 LEFT JOIN options ON options.question_id = questions.id
@@ -133,18 +135,21 @@ class Database
         }
     }
 
-    public  function updateSurvey($surveyModel)
+    public  function updateSurvey(Survey $surveyModel)
     {
         try
         {
             $statement = $this->pdo->prepare("UPDATE survey 
-                SET name=:survName, category=:category, primary_color=:color, coupon_id=:coupon 
+                SET name=:survName, primary_color=:color, coupon_id=:coupon, event_id=:event_id,   
+                    category=(SELECT id FROM survey_category WHERE name = :category)
                 WHERE id=:surveyID");
             $statement->bindValue(":surveyID", $surveyModel->id);
             $statement->bindValue(":survName", $surveyModel->surveyName);
             $statement->bindValue(":color", $surveyModel->primaryColor);
             $statement->bindValue(":category", $surveyModel->surveyCategory);
-            $statement->bindValue(":coupon", $surveyModel->couponCode);
+            $statement->bindValue(":coupon", 1);
+            $statement->bindValue(":event_id", $_SESSION['curr_event']);
+            $statement->execute();
         }
         catch (PDOException $e)
         {
@@ -156,13 +161,14 @@ class Database
     {
         try
         {
-            $statement = $this->pdo->prepare("INSERT INTO survey (name, event_id, primary_color, category) 
-            VALUES (:title, :event_id, :primary_color,
+            $statement = $this->pdo->prepare("INSERT INTO survey (name, event_id, primary_color, coupon_id, category) 
+            VALUES (:title, :event_id, :primary_color, :coupon,
             (SELECT id FROM survey_category WHERE name = :category)) ");
             $statement->bindValue(':title', $survey->surveyName);
             $statement->bindValue(':event_id', $_SESSION['curr_event']);
             $statement->bindValue(':category',$survey->surveyCategory);
             $statement->bindValue(':primary_color',$survey->primaryColor);
+            $statement->bindValue(':coupon', intval($survey->getCouponId()));
             $statement->execute();
 
             return $this->pdo->lastInsertId();
@@ -193,11 +199,12 @@ class Database
     {
         try
         {
-            $statement = $this->pdo->prepare("INSERT INTO questions (prompt, survey_id, category)
-                VALUES(:question_prompt, :surv_id, (SELECT id FROM question_category WHERE category_name = :category)) ");
+            $statement = $this->pdo->prepare("INSERT INTO questions (prompt, survey_id, required, category)
+                VALUES(:question_prompt, :surv_id, :required, (SELECT id FROM question_category WHERE category_name = :category)) ");
             $statement->bindValue(':question_prompt', $question->question_prompt);
             $statement->bindValue(':surv_id', $surv_id);
             $statement->bindValue(':category',$question->category_name);
+            $statement->bindValue(':required',$question->required);
             $statement->execute();
 
             $question->setId($this->pdo->lastInsertId());
@@ -209,7 +216,24 @@ class Database
 
     }
 
-
+    public function updateQuestion($question)
+    {
+        try{
+            $statement = $this->pdo->prepare("UPDATE questions    
+                SET prompt=:prompt, required=:required,  
+                    category=(SELECT id FROM question_category WHERE category_name = :category)
+                WHERE id=:questionId");
+            $statement->bindValue(":prompt", $question->question_prompt);
+            $statement->bindValue(":required", $question->required);
+            $statement->bindValue(":category", $question->category_name);
+            $statement->bindValue(":questionId", $question->id);
+            $statement->execute();
+        }
+        catch (PDOException $e)
+        {
+            print "Error!:". $e."<br/>";
+        }
+    }
 
     //Options
     public function createOption($option)
@@ -227,17 +251,65 @@ class Database
         }
     }
 
+    public function updateOptions($option)
+    {
+        try{
+            $statement = $this->pdo->prepare("UPDATE options    
+                SET choice=:choice
+                WHERE id=:optionId");
+            $statement->bindValue(":choice", $option->choice);
+            $statement->bindValue(":optionId", $option->id);
+            $statement->execute();
+        }
+        catch (PDOException $e)
+        {
+            print "Error!:". $e."<br/>";
+        }
+    }
 
-    //Coupon Code
-
+    // Coupon Code
     public function getCuoponCode($surveyId)
     {
-        $statement = $this->pdo->prepare('SELECT * FROM coupon_codes WHERE (SELECT id FROM survey WHERE id = :surveyId)');
+        $statement = $this->pdo->prepare('SELECT * FROM coupon_codes WHERE id = (SELECT coupon_id FROM survey WHERE id = :surveyId)');
         $statement->bindValue(":surveyId", "$surveyId");
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+    public function createCode($code)
+    {
+        try {
+            $statement = $this->pdo->prepare("INSERT INTO coupon_codes (message, code)
+                 VALUES(:message, :code);");
+            $statement->bindValue(':message', $code->message );
+            $statement->bindValue(':code', $code->code);
+            $statement->execute();
+
+            return $this->pdo->lastInsertId();
+        }
+        catch (PDOException $e)
+        {
+            print "Error!:". $e."<br/>";
+        }
+    }
+
+    public function updateCouponCode($code, $surveyId)
+    {
+        try{
+            $statement = $this->pdo->prepare("UPDATE coupon_codes    
+                SET message = :message, code = :code
+                WHERE id=(SELECT coupon_id FROM survey WHERE id = :surveyId)");
+            $statement->bindValue(":message", $code->getMessage());
+            $statement->bindValue(":code", $code->getCode());
+            $statement->bindValue(":surveyId", $surveyId);
+            $statement->execute();
+        }
+        catch (PDOException $e)
+        {
+            print "Error!:". $e."<br/>";
+        }
+    }
 
     //Responses
     public function createResponse($response)
@@ -252,7 +324,11 @@ class Database
     }
 
 
-    //Metrics
+    /*
+   *  Makes the database query to gather the needed data to build the metrics view
+   *  Input:  $surveyId - string: the name of the view to render
+   *  Return: an array containing the responses for a given survey
+   */
     public function getMetrics($surveyId)
     {
         $statement = $this->pdo->prepare('
@@ -260,7 +336,9 @@ class Database
             FROM response 
             INNER JOIN questions ON response.question_id = questions.id 
             INNER JOIN question_category ON questions.category = question_category.id 
-            WHERE questions.survey_id = :surveyId');
+            WHERE questions.survey_id = :surveyId
+            ORDER BY response.choice DESC
+            ');
         $statement->bindValue(":surveyId", $surveyId);
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_ASSOC);

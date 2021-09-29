@@ -5,10 +5,10 @@
     <div class="content-body">
         <table class="table">
             <thead>
-            <tr>
-                <th>User</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>User</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
             <?php foreach ($users as $user) { ?>

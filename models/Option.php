@@ -28,4 +28,39 @@ class Option
         $db->createOption($this);
     }
 
+    public function update()
+    {
+        $db = Database::$db;
+        $db->updateOptions($this);
+    }
+
+    public function setId($id)
+    {
+        $this->id = intval($id);
+    }
+
+    public function getId():?int
+    {
+        return $this->id;
+    }
+
+    public function setChoice($choice)
+    {
+        $this->choice = $choice;
+    }
+
+    public function getString():?string
+    {
+        return $this->choice;
+    }
+
+    public function setQuestionId($qid)
+    {
+        $this->questionId = $qid;
+    }
+
+    public function getQuestionId():?int
+    {
+        return $this->questionId;
+    }
 }

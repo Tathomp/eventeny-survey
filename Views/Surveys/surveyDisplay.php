@@ -1,7 +1,9 @@
-<div class="content-holder">
-    <h1 class="content-header"><?php echo $surveyModel->surveyName ?></h1>
+<div class="content-holder" style="border: 3px solid    <?php echo $surveyModel->primaryColor ?>">
+    <h1 class="content-header" style="background: <?php echo $surveyModel->primaryColor ?>">
+        <?php echo $surveyModel->surveyName ?>
+    </h1>
 
-    <div class="content-body">
+    <div class="content-body" >
         <form action="/events/survey/complete" method="POST" enctype="multipart/form-data">
             <?php foreach ($surveyModel->question as $question) { ?>
                 <?php
