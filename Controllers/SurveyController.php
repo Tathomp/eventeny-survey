@@ -45,36 +45,28 @@ class SurveyController
         ]);
     }
 
+    // This is the function that actually pushes the survey, question and coupon data to the database
+    // It's called by the create survey button and update survey button on the createSurvey.php view
     public function saveSurvey(UrlRouter $urlRouter)
     {
+        $eventId = $_SESSION["curr_event"];
+
         if(isset($_POST['create']))
         {
-            $eventId = null;
 
             if(isset($_POST['primary'])) // i think this check is redudant
             {
-                // We're using this to save data
-                $eventId = $_SESSION["curr_event"];
-                // we need to write the db call to insert the question
 
                 $coupon = new CouponCode();
                 $coupon->loadData($_POST);
                 $codeId = $coupon->save(); //We need to grab the new id to pass to the survey
-                echo "code id: ". $codeId;
+
                 $survey = new Survey();
                 $survey->loadData($_POST);
                 $survey->setCouponId($codeId);
                 $survey->save();
-
-
             }
 
-
-            $surveys = $urlRouter->database->getSurveys($eventId);
-
-            $urlRouter->renderView('Surveys/index', [
-                'surveys' => $surveys
-            ]);
         }
         elseif (isset($_POST['update']))
         {
@@ -89,10 +81,18 @@ class SurveyController
         else
         {
             $urlRouter->accessDenied();
+            return;
         }
+
+
+        $surveys = $urlRouter->database->getSurveys($eventId);
+
+        $urlRouter->renderView('Surveys/index', [
+            'surveys' => $surveys]);
+
     }
 
-
+    // Grabs the data for the chosen survey to populate the create survey page
     public function updateSurveyView(UrlRouter $urlRouter)
     {
         if(isset($_POST["survey-id"]))
@@ -108,18 +108,16 @@ class SurveyController
             $couponModel->setCode($couponData[0]['code']);
             $couponModel->setMessage($couponData[0]['message']);
 
+            $urlRouter->renderView('Surveys/create_survey', [
+                "surveyModel" => $surveyModel,
+                "couponModel" => $couponModel
+            ]);
         }
         else
         {
-            $surveyModel = new Survey();
-            $couponModel = new CouponCode();
+            $urlRouter->accessDenied();
         }
 
-
-        $urlRouter->renderView('Surveys/create_survey', [
-            "surveyModel" => $surveyModel,
-            "couponModel" => $couponModel
-        ]);
     }
 
 
@@ -135,7 +133,7 @@ class SurveyController
         ]);
     }
 
-
+    // Displays the chosen survey to the user
     public function displaySurvey(UrlRouter $urlRouter)
     {
         $url_components = parse_url($_SERVER['REQUEST_URI']);
@@ -158,6 +156,7 @@ class SurveyController
         ]);
     }
 
+    // Registers the user's responses
     public function completeSurvey(UrlRouter $urlRouter)
     {
         $uuid = generateUUID();
@@ -179,6 +178,7 @@ class SurveyController
         $urlRouter->renderView('Surveys/thankYouPage', ['surveyData' => $surveyData ]);
     }
 
+    // Deletes the given survey from the database
     public function deleteSurvey(UrlRouter $urlRouter)
     {
         $urlRouter->database->deleteSurvey($_POST['survey-id']);

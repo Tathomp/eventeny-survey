@@ -5,11 +5,7 @@ use App\Classes\UrlRouter;
 
 class UserController
 {
-    public function __construct()
-    {
-        
-    }
-
+    // List all users (event organizers)
     public function index(UrlRouter $urlRouter)
     {
         $users = $urlRouter->database->getUsers("");

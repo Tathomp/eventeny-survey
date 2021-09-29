@@ -6,13 +6,8 @@ use App\Classes\Database;
 class Option 
 {
     public ?int $id = null;
-    public ?string $choice;
-    public ?int $questionId;
-
-    public function __construct()
-    {
-        
-    }
+    public ?string $choice = null;
+    public ?int $questionId = null;
 
     public function loadData($data)
     {

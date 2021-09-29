@@ -7,11 +7,7 @@ use App\Classes\UrlRouter;
 
 class MetricsController
 {
-    public function __construct()
-    {
-
-    }
-
+    // Download the response data for a survey as a CSV file
     public function downLoadMetrics(UrlRouter $urlRouter)
     {
         $results = $urlRouter->database->getMetrics($_POST['survey-id']);
@@ -32,17 +28,19 @@ class MetricsController
 
     }
 
+    // Builds a map with all the metrics data for a given survey
+    // Perhaps refactor this to be in a model
     public function surveyMetrics(UrlRouter $urlRouter)
     {
         if( isset($_POST['survey-id']))
         {
             $survey = $urlRouter->database->getSur($_POST['survey-id'])[0];
             $results = $urlRouter->database->getMetrics($_POST['survey-id']);
-
             $metrics = array();
             $metrics['responses'] = array(); //This will be for counting unique respondents
 
             $metrics['count'] = 0;
+            $metrics['questionCount'] = 0;
 
             foreach ($results as $r)
             {
@@ -80,6 +78,7 @@ class MetricsController
                         $metrics[$r["question_id"]] = array();
                         $metrics[$r["question_id"]]["prompt"] = $r["prompt"];
                         $metrics[$r["question_id"]]["category_name"] = $r["category_name"];
+                        $metrics["questionCount"]++;
 
 
                         // We only want to display metrics for multiple choice type questions
@@ -103,15 +102,14 @@ class MetricsController
                         $metrics[$r["question_id"]]["sum"] =  intval($r["choice"]);
                         $metrics[$r["question_id"]]["count"] = intval(1);
 
+                        $metrics["questionCount"]++;
+
                     }
-
-
                 }
-
-
             }
 
-            // point to metrics page
+
+
             $urlRouter->renderView('Metrics/survey_metrics', [
                 'metrics' => $metrics,
                 'survey' => $survey
@@ -119,8 +117,7 @@ class MetricsController
         }
         else
         {
-            //through out page not found type page
-            include __DIR__."/Views/access_denied.php";
+            $urlRouter->accessDenied();
         }
     }
 

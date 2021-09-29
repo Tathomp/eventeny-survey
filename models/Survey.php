@@ -9,16 +9,12 @@ class Survey
 {
     public ?int $id = null;
     public ?string $surveyName = "";
-    public ?string $surveyCategory = null;
+    public ?string $surveyCategory = "";
     public ?string $primaryColor = "#08a09c";
     public ?int $couponCode = null;
 
     public array $question = array();
 
-    public function __construct()
-    {
-
-    }
     public function loadDataFromDB($queryData)
     {
         $this->surveyName = $queryData[0]['name'];
@@ -27,7 +23,6 @@ class Survey
 
         foreach ($queryData as $data)
         {
-
             if($data["category"] == "Radio"
                 || $data["category"] == "Checkbox"
                 || $data["category"] == "Drop Down")
@@ -106,7 +101,7 @@ class Survey
     public function update()
     {
         $db = Database::$db;
-        $surv_id = $db->updateSurvey($this);
+        $db->updateSurvey($this);
 
         foreach($this->question as $q)
         {
@@ -127,6 +122,10 @@ class Survey
     public function getColor():?string
     {
         return strtolower($this->primaryColor);
+    }
+
+    public  function getId():?int{
+        return $this->id;
     }
 
 

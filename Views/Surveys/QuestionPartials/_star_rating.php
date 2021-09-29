@@ -1,6 +1,6 @@
 <style>
     .selected{
-        color: #08A09C;
+        color: <?php echo $surveyModel->primaryColor; ?>;
     }
 </style>
 
@@ -17,6 +17,3 @@
 
 </div>
 
-<script  type="text/javascript">
-
-</script>

@@ -41,7 +41,10 @@
                 <br>
             <?php } ?>
             <br>
-            <button class="button" type="submit">Confirm Survey</button>
+            <button class="button" type="submit"
+                    style="background-color: <?php echo $surveyModel->primaryColor; ?>"
+
+            >Confirm Survey</button>
         </form>
     </div>
 </div>

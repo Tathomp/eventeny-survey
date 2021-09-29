@@ -1,4 +1,3 @@
-<button class="button" type="button" onclick="generatePreview()">Preview Test</button>
 <div class="survey-content-holder">
     <div class="row">
         <div class="column">
@@ -8,7 +7,10 @@
             <form action="/events/survey/save" id="dynamicform" method="POST" enctype="multipart/form-data">
                 <div class="survey-content-body">
                     <label for="survey-name-input">Survey Name:</label>
-                    <input type="text" id="survey-name-input" name="survey-name" value="<?php echo $surveyModel->surveyName; ?>">
+                    <input type="text"
+                           id="survey-name-input"
+                           name="survey-name"
+                           value="<?php echo $surveyModel->surveyName; ?>">
 
                     <br><br>
 
@@ -41,8 +43,11 @@
                     <button  class="button" type="button" onclick="generateDropDown()">New Question</button>
 
                     <button class="button" type="submit" name="create">Submit Survey</button>
-                    <button class="button" type="submit" name="update" value="<?php echo $surveyModel->id; ?>">Update Survey Form</button>
-                    <br>
+                    <?php if($surveyModel->getId() != null){
+                        echo '<button class="button" type="submit" name="update" value='. $surveyModel->getId().'>Update Survey Form  </button>';
+                    } ?>
+                    <button class="button" type="button" onclick="generatePreview()">Preview Test</button>
+
                 </div>
                 <div id="question-container"></div>
 
@@ -58,9 +63,8 @@
 </div>
 
 
-
-<script src="/static/js/dynamicform.js" ></script>
 <script src="/static/js/formpreview.js" ></script>
+<script src="/static/js/dynamicform.js" ></script>
     <script  type="text/javascript">
         var jsonData = <?php print json_encode($surveyModel)?>;
         console.log(jsonData);

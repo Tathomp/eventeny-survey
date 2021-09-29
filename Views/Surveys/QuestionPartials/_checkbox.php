@@ -8,7 +8,9 @@
             <input type="checkbox"
                    id="<?php echo $question->id ?>-<?php echo $option->id ?>"
                    name="<?php echo $question->id ?>-<?php echo $option->id ?>"
-                   value="<?php echo $option->choice ?>">
+                   value="<?php echo $option->choice ?>"
+                    style="background-color: <?php echo $surveyModel->primaryColor; ?>">
+
             <span><?php echo $option->choice ?></span>
         </label>
     </div>

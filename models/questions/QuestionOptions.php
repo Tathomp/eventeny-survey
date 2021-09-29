@@ -6,16 +6,15 @@ use App\Models\Option;
 
 class QuestionOptions extends Question
 {
-    public $options = array();
+    public array $options = array();
 
     public function loadData($data)
     {
         parent::loadData($data);
-        if(isset($data['option'])) //this check might be redunat, it's only being chcecked when it's already be verified to have otptions
+        if(isset($data['option']))
         {
             foreach(array_keys($data['option']) as $key)
             {
-
                 $option = new Option();
                 $option->setId($key);
                 $option->choice = $data['option'][$key];
@@ -30,7 +29,6 @@ class QuestionOptions extends Question
         $option = new Option();
         $option->loadData($data);
         $this->options[] = $option;
-
     }
 
     public function addOption($data)
@@ -46,9 +44,7 @@ class QuestionOptions extends Question
         parent::save($surv_id);
         foreach($this->options as $option)
         {
-//           $db->createOption($option, $this->id);
             $option->save($this->id);
-
         }
     }
 
@@ -58,11 +54,8 @@ class QuestionOptions extends Question
         parent::update();
         foreach($this->options as $option)
         {
-//           $db->createOption($option, $this->id);
             $option->update($this);
-
         }
     }
-
 }
 

@@ -6,7 +6,7 @@
     <ul>
         <li>Create New Surveys</li>
         <li>Update Old Surveys</li>
-        <li>Delete Unused Sureys</li>
+        <li>Delete Unused Surveys</li>
         <li>Track Survey Responses</li>
     </ul>
     <div class="">

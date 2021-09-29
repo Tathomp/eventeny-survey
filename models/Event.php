@@ -11,6 +11,5 @@ class Event
     {
         $this->id = $data['id'] ?? null;
         $this->eventName = $data['name'] ?? null;
-
     }
 }

@@ -5,6 +5,8 @@
     <div class="content-body">
         <div>
             Total Responses: <?php echo $metrics['count'] ?>
+            <br>
+            Total Questions: <?php echo $metrics['questionCount'] ?>
         </div>
         <?php foreach ($metrics as $metric) {
             if( isset($metric["choices"]))
@@ -31,7 +33,9 @@
         }?>
         <br>
         <form action="/events/survey/metrics/download" method="post" target="_blank">
-            <button type="submit" name="survey-id" class="button" value="<?php echo $survey['id'] ?>">
+            <button type="submit" name="survey-id" class="button"
+                    style="background-color: <?php echo $survey['primary_color']; ?>"
+                    value="<?php echo $survey['id'] ?>">
                 Download Data
             </button>
         </form>

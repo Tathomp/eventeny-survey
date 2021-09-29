@@ -10,9 +10,9 @@ class EventController
         
     }
 
+    // Grabs all the events for a given user
     public function index(UrlRouter $urlRouter)
     {
-
         if( isset($_POST['user_id']))
         {
             $events = $urlRouter->database->getEvents($_POST['user_id']);
@@ -23,8 +23,7 @@ class EventController
         }
         else
         {
-            //through out page not found type page
-            include __DIR__."/Views/access_denied.php";
+            $urlRouter->accessDenied();
         }
     }
 }

@@ -222,7 +222,8 @@ class Database
             $statement = $this->pdo->prepare("UPDATE questions    
                 SET prompt=:prompt, required=:required,  
                     category=(SELECT id FROM question_category WHERE category_name = :category)
-                WHERE id=:questionId");
+                WHERE id=:questionId
+                ");
             $statement->bindValue(":prompt", $question->question_prompt);
             $statement->bindValue(":required", $question->required);
             $statement->bindValue(":category", $question->category_name);

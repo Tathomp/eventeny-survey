@@ -189,7 +189,7 @@ function createQuestionBlock(qustionArray)
     deleteQuestion.innerHTML = "Delete Question";
     deleteQuestion.setAttribute('class', 'button');
     deleteQuestion.setAttribute('type', 'button');
-    deleteQuestion.onclick = function () { questionDeletePopup(questionItem);};
+        deleteQuestion.onclick = function () { questionDeletePopup(questionItem);};
     questionItem.appendChild(deleteQuestion);
 
     questionItem.appendChild(document.createElement("br"));
@@ -246,6 +246,8 @@ function createQuestionBlock(qustionArray)
         questionItem.appendChild(btn);
 
         qustionArray['options'].forEach(option => {
+            console.log(option.id);
+            console.log("Options");
             generateNewOption(questionItem, option)
             }
         )
@@ -259,11 +261,20 @@ function generateNewOption(targetQuestionItem, optionArray)
 {
     console.log("Options Array");
     console.log(optionArray);
-    if(optionArray["id"] == "")
+
+    if(optionArray.id == null)
     {
-        optionsCountMap.set(targetQuestionItem, optionsCountMap.get(targetQuestionItem)+1);
         optionArray["id"]=optionsCountMap.get(targetQuestionItem);
+
     }
+    else
+    {
+        optionArray["id"] = optionArray.id;
+    }
+
+
+   optionsCountMap.set(targetQuestionItem, optionsCountMap.get(targetQuestionItem)+1);
+
 
     let questionItem = targetQuestionItem;
 
@@ -355,7 +366,6 @@ function generateNewInputField()
 {
     let input = document.createElement('input');
     input.type = "text";
-
     return input;
 }
 

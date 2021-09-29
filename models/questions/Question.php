@@ -10,11 +10,6 @@ class Question
     public ?string $survey_id = null;
     public ?bool $required = null;
 
-
-    public function __construct()
-    {
-        
-    }
     public function setId($id)
     {
         $this->id = $id;

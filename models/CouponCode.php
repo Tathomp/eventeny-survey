@@ -7,14 +7,8 @@ use App\Classes\Database;
 class CouponCode
 {
     public ?int $id = null;
-    public string $code;
-    public string $message;
-
-    public function __construct()
-    {
-        $this->code = " ";
-        $this->message = " ";
-    }
+    public string $code = " ";
+    public string $message = " ";
 
     public function loadData($data)
     {
