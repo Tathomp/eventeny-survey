@@ -34,13 +34,12 @@ class MetricsController
     {
         if( isset($_POST['survey-id']))
         {
-            $survey = $urlRouter->database->getSur($_POST['survey-id'])[0];
+            $survey = $urlRouter->database->getSurvey($_POST['survey-id'])[0];
             $results = $urlRouter->database->getMetrics($_POST['survey-id']);
             $metrics = array();
             $metrics['responses'] = array(); //This will be for counting unique respondents
 
             $metrics['count'] = 0;
-            $metrics['questionCount'] = 0;
 
             foreach ($results as $r)
             {
@@ -102,7 +101,6 @@ class MetricsController
                         $metrics[$r["question_id"]]["sum"] =  intval($r["choice"]);
                         $metrics[$r["question_id"]]["count"] = intval(1);
 
-                        $metrics["questionCount"]++;
 
                     }
                 }

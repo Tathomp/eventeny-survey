@@ -1,131 +1,45 @@
 const form = document.getElementById("question-container");
 let currentQuestionNumber = 0;
+
 let useID = false;
 let currentId = 0;
 
-let optionsCountMap = new Map();
+const optionsCountMap = new Map();
 
-
-function generateDropDown()
+// Fills the form with data from the model passed to the view
+function populateForm()
 {
-    let paramString = '{ "id" : "", ' +
-                        '"options" : [{"choice": "", "id":""}], ' +
-    '                   "question_prompt": "", ' +
-        '               "category_name": "Drop Down",' +
-                        '"required": ' + true +'  }';
-    let paramObj = JSON.parse(paramString);
-    createQuestionBlock(paramObj);
-}
-
-function generateRadio()
-{
-    let paramString = '{ "id" : "", ' +
-                        '"options" : [{"choice": "", "id":""}],' +
-                        '"question_prompt": "", ' +
-        '               "category_name": "Radio",' +
-                        '"required": ' + true +'  }';
-    let paramObj = JSON.parse(paramString);
-    createQuestionBlock(paramObj);
-}
-
-function generateCheckBox()
-{
-    let paramString = '{ "id" : "",' +
-                        '"options" : [{"choice": "", "id":""}], ' +
-                        '"question_prompt": "", ' +
-                        '"category_name": "Checkbox",' +
-                        '"required": ' + true +'  }';
-    let paramObj = JSON.parse(paramString);
-    createQuestionBlock(paramObj);
-}
-function generateStarRating()
-{
-    let paramString = '{ "id" : "",' +
-                        '"question_prompt": "", ' +
-                        '"category_name": "Star Rating",' +
-                        '"required": ' + true + ' }';
-    let paramObj = JSON.parse(paramString);
-    createQuestionBlock(paramObj);
-}
-function generateParagraph()
-{
-    let paramString = '{ "id" : "", ' +
-                        '"question_prompt": "", ' +
-                        '"category_name": "Paragraph",' +
-        '               "required": ' + true + ' }';
-    let paramObj = JSON.parse(paramString);
-    createQuestionBlock(paramObj);
-}
-function generateShortAnswer()
-{
-    let paramString = '{ "id" : "",' +
-                        '"question_prompt": "", ' +
-                        '"category_name": "Short Answer",' +
-                            '"required": ' + true + ' }';
-    let paramObj = JSON.parse(paramString);
-    createQuestionBlock(paramObj);
+    document.getElementById("primary").value = jsonData["primaryColor"];
+    jsonData['question'].forEach(question => {
+        createQuestionBlock(question);
+    })
 }
 
 
-
-
-function selectForm(control, questId)
-{
-    let q = questId;
-    currentQuestionNumber++;
-    deleteCurrentQuestion(q); // we need to delete the question we're editing
-
-    switch(control.value){
-        case 'Drop Down':
-            generateDropDown();
-            break;
-        case 'Checkbox':
-            generateCheckBox();
-            break;
-        case 'Radio':
-            generateRadio();
-            break;
-        case 'Star Rating':
-            generateStarRating();
-            break;
-        case 'Paragraph':
-            generateParagraph();
-            break;
-        case 'Short Answer':
-            generateShortAnswer();
-            break;
-    }
-}
-
-function createQuestionBlock(qustionArray)
+// Called when the "new question" button is pressed
+// We build all the base HTML elements for the new question block here
+function createQuestionBlock(questionArr)
 {
     let questionItem = document.createElement("div");
     questionItem.className = 'survey-content-holder';
 
-    if (qustionArray["id"] != "")
+    if (questionArr["id"] != "")
     {
         useID = true;
-        currentId = qustionArray["id"];
+        currentId = questionArr["id"];
 
         let questionIdContainer = generateHiddenField();
-        questionIdContainer.setAttribute("name", getQuestionNamePrefix() +"[id][" +  qustionArray["id"] +"]");
+        questionIdContainer.setAttribute("name", getQuestionNamePrefix() +"[id][" +  questionArr["id"] +"]");
         questionItem.appendChild(questionIdContainer);
         questionItem.setAttribute('id', currentId);
-
     }
     else
     {
         currentQuestionNumber++;
         questionItem.setAttribute('id', currentQuestionNumber);
-
     }
 
-
-
-
     questionItem.appendChild(generateLabel("Question Type: "));
-
-   // questionItem.appendChild(document.createElement("br"));
 
     let selectionType = document.createElement("select");
     selectionType.setAttribute('name', getQuestionNamePrefix() + "[category]")
@@ -160,8 +74,9 @@ function createQuestionBlock(qustionArray)
     option6.text = "Radio";
     option6.value = "Radio";
     selectionType.appendChild(option6);
-    console.log(qustionArray['category_name']);
-    switch(qustionArray['category_name'])
+
+    // We want to mark our current question type as selected
+    switch(questionArr['category_name'])
     {
         case "Drop Down":
             option1.setAttribute('selected', 'selected')
@@ -185,17 +100,17 @@ function createQuestionBlock(qustionArray)
 
     questionItem.appendChild(selectionType);
 
+    // Delete question element and controls
     let deleteQuestion = document.createElement("button");
     deleteQuestion.innerHTML = "Delete Question";
     deleteQuestion.setAttribute('class', 'button');
     deleteQuestion.setAttribute('type', 'button');
-        deleteQuestion.onclick = function () { questionDeletePopup(questionItem);};
+    deleteQuestion.onclick = function () { questionDeletePopup(questionItem);};
     questionItem.appendChild(deleteQuestion);
 
     questionItem.appendChild(document.createElement("br"));
 
-    // Required Toggle
-    // We'll need to give it an apporiate name and parse for it
+    // Required Toggle and labels
     let labelPrompt = generateLabel("Required Question?");
     questionItem.appendChild(labelPrompt);
 
@@ -208,46 +123,47 @@ function createQuestionBlock(qustionArray)
 
     questionItem.appendChild(noOption);
 
-    let switchLabel = generateLabel("")
+    let switchLabel = generateLabel("");
+
     let checkBox = document.createElement("input");
     checkBox.setAttribute("type", "checkbox");
     checkBox.setAttribute("name", getQuestionNamePrefix() + "[required]");
-    console.log(qustionArray)
-    checkBox.checked = qustionArray['required'];
+    checkBox.checked = questionArr['required'];
+
     let span = document.createElement("span");
     span.setAttribute("class", "slider round");
     switchLabel.setAttribute("class", "switch")
+
     switchLabel.appendChild(checkBox);
     switchLabel.appendChild(span);
     questionItem.appendChild(switchLabel);
-
     questionItem.appendChild(yesOption);
-
 
     questionItem.appendChild(document.createElement("br"));
 
-    //label element for drop-down menu
+    //label element for question type dropdown menu
     questionItem.appendChild(generateLabel("Question: "));
 
     let input = generateNewInputField();
     input.setAttribute('name', getQuestionNamePrefix() + "[prompt]");
-    input.setAttribute("value", qustionArray['question_prompt']);
+    input.setAttribute("value", questionArr['question_prompt']);
     questionItem.appendChild(input);
 
-    if("options" in qustionArray)
+    if("options" in questionArr)
     {
         let btn = document.createElement("button");
+
         btn.innerHTML = "Add option";
         btn.setAttribute("type", "button");
-        btn.className = "button";
-        optionsCountMap.set(questionItem, 0);
+        btn.classList.add("button");
 
         btn.onclick = function() { generateNewOption(questionItem, {"choice":""}); };
+
         questionItem.appendChild(btn);
 
-        qustionArray['options'].forEach(option => {
-            console.log(option.id);
-            console.log("Options");
+        optionsCountMap.set(questionItem, 0);
+
+        questionArr['options'].forEach(option => {
             generateNewOption(questionItem, option)
             }
         )
@@ -257,31 +173,32 @@ function createQuestionBlock(qustionArray)
     return questionItem;
 }
 
+// Called by the 'new option' button
+// Generate the html for a new option field and assigns it the appropriate name value
 function generateNewOption(targetQuestionItem, optionArray)
 {
     console.log("Options Array");
     console.log(optionArray);
+    let questionItem = targetQuestionItem;
 
-    if(optionArray.id == null)
+    optionsCountMap.set(questionItem, optionsCountMap.get(questionItem) + 1);
+
+    if(optionArray.id == '' || optionArray.id == undefined)
     {
-        optionArray["id"]=optionsCountMap.get(targetQuestionItem);
-
+        console.log("no id")
+        optionArray["id"]=optionsCountMap.get(questionItem);
     }
     else
     {
+        console.log("id")
+        console.log(optionArray.id)
+
         optionArray["id"] = optionArray.id;
     }
 
-
-   optionsCountMap.set(targetQuestionItem, optionsCountMap.get(targetQuestionItem)+1);
-
-
-    let questionItem = targetQuestionItem;
-
     let optionDiv = document.createElement("div");
-    optionsCountMap.set(questionItem, optionsCountMap.get(questionItem) + 1);
-
     let optionsId = generateHiddenField();
+
     optionsId.setAttribute("name", getQuestionNamePrefix() +"[id][" + optionArray["id"] +"]");
     questionItem.appendChild(optionsId);
 
@@ -302,31 +219,94 @@ function generateNewOption(targetQuestionItem, optionArray)
     questionItem.appendChild(optionDiv);
 }
 
+//
+// function initOptionQuestion(selectedOption)
+// {
+//     let questionItem = newQuestionBlock(selectedOption);
+//     optionsCountMap.set(questionItem, 0);
+//
+//     //new otpion button
+//     let btn = document.createElement("button");
+//     btn.innerHTML = "Add option";
+//     btn.setAttribute("type", "button");
+//     btn.className = "button";
+//     btn.onclick = function() { generateNewOption(questionItem); };
+//     questionItem.appendChild(btn);
+//
+//     generateNewOption(questionItem);
+//     return questionItem;
+// }
+//
 
-function initOptionQuestion(selectedOption)
+// Confirms that the user wants to delete a question from the form
+function questionDeletePopup(question)
 {
-    let questionItem = newQuestionBlock(selectedOption);
-    optionsCountMap.set(questionItem, 0);
-
-    //new otpion button
-    let btn = document.createElement("button");
-    btn.innerHTML = "Add option";
-    btn.setAttribute("type", "button");
-    btn.className = "button";
-    btn.onclick = function() { generateNewOption(questionItem); };
-    questionItem.appendChild(btn);
-
-    generateNewOption(questionItem);
-    return questionItem;
+    let response = confirm("Are you sure you want to delete Question?");
+    if(response == true)
+    {
+        question.remove();
+    }
 }
 
-///
-// Utils
-////
+// Used to clear out a question container when we switch the question type
+function deleteCurrentQuestion(questionId)
+{
+    questionId.remove();
+}
 
+
+// Deletes the data for the previous question block and generates the base data for the new one
+function selectForm(control, questId)
+{
+    let q = questId;
+    currentQuestionNumber++;
+    deleteCurrentQuestion(q); // we need to delete the question we're editing
+
+    switch(control.value){
+        case 'Drop Down':
+            generateDropDown();
+            break;
+        case 'Checkbox':
+            generateCheckBox();
+            break;
+        case 'Radio':
+            generateRadio();
+            break;
+        case 'Star Rating':
+            generateStarRating();
+            break;
+        case 'Paragraph':
+            generateParagraph();
+            break;
+        case 'Short Answer':
+            generateShortAnswer();
+            break;
+    }
+}
+
+//////////
+// Utilis
+//////////
+function generateNewInputField()
+{
+    let input = document.createElement('input');
+    input.type = "text";
+    return input;
+}
+
+function generateHiddenField()
+{
+    let idContainer = document.createElement("textarea");
+    idContainer.className = "hidden-textarea";
+    idContainer.style.visibility = "hidden";
+
+    return idContainer;
+}
+
+// WIth the proper formatting, PHP will arrange our POST data in a easy to parse way
+//  https://www.php.net/manual/en/reserved.variables.post.php
 function getQuestionNamePrefix()
 {
-    // https://www.php.net/manual/en/reserved.variables.post.php
     if(useID)
     {
         return "question[" +currentId + "]";
@@ -347,42 +327,69 @@ function generateLabel(labelValue)
     return label;
 }
 
-function questionDeletePopup(question)
+// Helper functions that provide the default values for new questions and options
+// The formatting of these arrays matches the formatting of the serialization of the survey/question/option models
+function generateDropDown()
 {
-    let response = confirm("Are you sure you want to delete Question?");
-    if(response == true)
-    {
-        question.remove();
-    }
+    let paramString = '{ "id" : "", ' +
+        '"options" : [{"choice": "", "id":""}], ' +
+        '                   "question_prompt": "", ' +
+        '               "category_name": "Drop Down",' +
+        '"required": ' + true +'  }';
+    let paramObj = JSON.parse(paramString);
+    createQuestionBlock(paramObj);
 }
 
-// THis is used for the when we change teh drop down menu box
-function deleteCurrentQuestion(questionId)
+function generateRadio()
 {
-    questionId.remove();
+    let paramString = '{ "id" : "", ' +
+        '"options" : [{"choice": "", "id":""}],' +
+        '"question_prompt": "", ' +
+        '               "category_name": "Radio",' +
+        '"required": ' + true +'  }';
+    let paramObj = JSON.parse(paramString);
+    createQuestionBlock(paramObj);
 }
 
-function generateNewInputField()
+function generateCheckBox()
 {
-    let input = document.createElement('input');
-    input.type = "text";
-    return input;
+    let paramString = '{ "id" : "",' +
+        '"options" : [{"choice": "", "id":""}], ' +
+        '"question_prompt": "", ' +
+        '"category_name": "Checkbox",' +
+        '"required": ' + true +'  }';
+    let paramObj = JSON.parse(paramString);
+    createQuestionBlock(paramObj);
 }
 
-function generateHiddenField()
+function generateStarRating()
 {
-    let idContainer = document.createElement("textarea");
-    idContainer.className = "hidden-textarea";
-    idContainer.style.visibility = "hidden";
-
-    return idContainer;
+    let paramString = '{ "id" : "",' +
+        '"question_prompt": "", ' +
+        '"category_name": "Star Rating",' +
+        '"required": ' + true + ' }';
+    let paramObj = JSON.parse(paramString);
+    createQuestionBlock(paramObj);
 }
 
-function populateForm()
+function generateParagraph()
 {
-    // we couldn't echo this in with php
-    document.getElementById("primary").value = jsonData["primaryColor"];
-    jsonData['question'].forEach(question => {
-        createQuestionBlock(question);
-    })
+    let paramString = '{ "id" : "", ' +
+        '"question_prompt": "", ' +
+        '"category_name": "Paragraph",' +
+        '               "required": ' + true + ' }';
+    let paramObj = JSON.parse(paramString);
+    createQuestionBlock(paramObj);
 }
+
+function generateShortAnswer()
+{
+    let paramString = '{ "id" : "",' +
+        '"question_prompt": "", ' +
+        '"category_name": "Short Answer",' +
+        '"required": ' + true + ' }';
+    let paramObj = JSON.parse(paramString);
+    createQuestionBlock(paramObj);
+}
+
+

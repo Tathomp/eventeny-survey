@@ -5,8 +5,6 @@
     <div class="content-body">
         <div>
             Total Responses: <?php echo $metrics['count'] ?>
-            <br>
-            Total Questions: <?php echo $metrics['questionCount'] ?>
         </div>
         <?php foreach ($metrics as $metric) {
             if( isset($metric["choices"]))

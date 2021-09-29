@@ -62,7 +62,7 @@ class Database
 
 
     //Survey
-    public function getSurveys($eventId)
+    public function getEventSurveys($eventId)
     {
         try
         {
@@ -77,23 +77,8 @@ class Database
         }
     }
 
-    public  function getSurvey($surveyId)
-    {
-        try
-        {
-            $statement = $this->pdo->prepare('SELECT * FROM survey WHERE survey.event_id = :eventId');
-            $statement->bindValue(":eventId", "$eventId");
-            $statement->execute();
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
-        }
-        catch (PDOException $e)
-        {
-            print "Error!:". $e."<br/>";
-        }
 
-    }
-
-    public function getSur($surveyId)
+    public function getSurvey($surveyId)
     {
         try
         {

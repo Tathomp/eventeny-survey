@@ -38,7 +38,7 @@ class SurveyController
             return;
         }
 
-        $surveys = $urlRouter->database->getSurveys($eventId);
+        $surveys = $urlRouter->database->getEventSurveys($eventId);
 
         $urlRouter->renderView('Surveys/index', [
             'surveys' => $surveys
@@ -85,7 +85,7 @@ class SurveyController
         }
 
 
-        $surveys = $urlRouter->database->getSurveys($eventId);
+        $surveys = $urlRouter->database->getEventSurveys($eventId);
 
         $urlRouter->renderView('Surveys/index', [
             'surveys' => $surveys]);
@@ -183,7 +183,7 @@ class SurveyController
     {
         $urlRouter->database->deleteSurvey($_POST['survey-id']);
         $eventId = $_SESSION["curr_event"];
-        $surveys = $urlRouter->database->getSurveys($eventId);
+        $surveys = $urlRouter->database->getEventSurveys($eventId);
 
         $urlRouter->renderView('Surveys/index', [
             'surveys' => $surveys
