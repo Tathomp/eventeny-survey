@@ -17,8 +17,9 @@
                     <label for="survey-category">Choose a category:</label>
                     <select name="survey-category" id="survey-category">
                         <option <?php echo ($surveyModel->surveyCategory == "Food" ? "selected" : "") ?> value="Food">Food</option>
-                        <option <?php echo ($surveyModel->surveyCategory == "Customer Service" ? "selected" : "") ?> value="Entertainment">Entertainment</option>
+                        <option <?php echo ($surveyModel->surveyCategory == "Art  " ? "selected" : "") ?> value="Art">Art</option>
                         <option <?php echo ($surveyModel->surveyCategory == "Customer Service" ? "selected" : "") ?> value="Customer Service">Customer Service</option>
+                        <option <?php echo ($surveyModel->surveyCategory == "Music" ? "selected" : "") ?> value="Music">Music</option>
                     </select>
 
                     <br><br>

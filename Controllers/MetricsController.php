@@ -77,7 +77,6 @@ class MetricsController
                         $metrics[$r["question_id"]] = array();
                         $metrics[$r["question_id"]]["prompt"] = $r["prompt"];
                         $metrics[$r["question_id"]]["category_name"] = $r["category_name"];
-                        $metrics["questionCount"]++;
 
 
                         // We only want to display metrics for multiple choice type questions
